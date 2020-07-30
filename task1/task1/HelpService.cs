@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace task1
@@ -10,28 +8,12 @@ namespace task1
     public class HelpService
     {
         private string FilePath { get; set; }
-        private string FormatedText { get; set; }
         private string OriginalText { get; set; }
 
         public HelpService()
         {
             var path = Environment.CurrentDirectory + "\\text.txt";
-            if (File.Exists(path))
-            {
-                FilePath = path;
-            }
-        }
-
-        public void SetPath(string str)
-        {
-            do
-            {
-                Console.Clear();
-                Console.Write("Enter file path: ");
-                str = Console.ReadLine();
-            } while (!File.Exists(str));
-            FilePath = str;
-            Console.Clear();
+            if (File.Exists(path)) FilePath = path;
         }
 
         public async Task ReadTextFile()
@@ -41,21 +23,26 @@ namespace task1
                 using var sr = new StreamReader(FilePath);
                 OriginalText = await sr.ReadToEndAsync();
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(e.Message);
             }
         }
 
-        public void ShowOriginalText()
+        public async Task WriteToFile()
         {
-            Console.WriteLine(OriginalText);
-        }
-
-        public void ShowFormatedText()
-        {
-            Console.WriteLine(FormatedText);
+            try
+            {
+                using StreamWriter outputFile = new StreamWriter(FilePath);
+                await outputFile.WriteAsync(OriginalText);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The file could not be writed:");
+                Console.WriteLine(e.Message);
+            }
+            
         }
 
         public void DeleteSubstr()
@@ -66,7 +53,11 @@ namespace task1
             int index = OriginalText.IndexOf(str);
 
             if (index >= 0)
-                FormatedText = OriginalText.Replace(str, "");
+            {
+                OriginalText = OriginalText.Replace(str, "");
+                Console.WriteLine($"Deleted!");
+            }
+
             else Console.WriteLine($"Char/String \"{str}\" not found!");
         }
 
@@ -76,9 +67,9 @@ namespace task1
             Console.WriteLine($"Count of words: {words.Length}");
 
             Console.WriteLine("Every 10th word: ");
-            for (int i = 0; i < words.Length; i++)
+            for (int i = 9; i < words.Length; i += 10)
             {
-                if ((i + 1) % 10 == 0) Console.Write(words[i] + ", ");
+                Console.Write(words[i] + ", ");
             }
         }
 
@@ -91,8 +82,7 @@ namespace task1
 
         public string ReverseStr(string str)
         {
-            string reverseWordString = string.Join(" ", str.Split(' ').Select(x => new String(x.Reverse().ToArray())));
-            return reverseWordString;
+            return string.Join(" ", str.Split(' ').Select(x => new String(x.Reverse().ToArray())));
         }
     }
 }
